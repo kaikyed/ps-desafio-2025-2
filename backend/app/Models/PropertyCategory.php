@@ -6,14 +6,14 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CharacterClass extends Model
+class PropertyCategory extends Model
 {
-    /** @use HasFactory<\Database\Factories\CharacterClassFactory> */
+    /** @use HasFactory<\Database\Factories\PropertyCategoryFactory> */
     use HasFactory, HasUuids;
+
     protected $fillable = [
 
-        'name', 
+        'name',
 
     ];
-    
 }
