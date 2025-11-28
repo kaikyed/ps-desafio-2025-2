@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('characters', function (Blueprint $table) {
+        Schema::create('properties', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('category');
+            $table->string('type');
+            $table->string('image');
             $table->string('name');
-            $table->string('image')->nullable();
-            $table->boolean('acquired')->default(true); //boolean mas pode colocar o int
             $table->text('description');
+            $table->boolean('acquired')->default(true);
+            $table->decimal('price',10,2);
+            $table->foreignUuid('property_category_id')->constrained('property_categories');
             $table->timestamps();
         });
     }
@@ -27,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('characters');
+        Schema::dropIfExists('properties');
     }
 };

@@ -14,29 +14,30 @@ import {
 import { useToast } from '@/components/use-toast'
 import { useState } from 'react'
 
-interface DialogCreatePropertyProps {
+interface DialogDeletePropertyProps {
   id: string
   children: React.ReactNode
 }
 
-export function DialogPropertyDelete({ id, children }: DialogCreatePropertyProps) {
-  const [open, setOpen] = useState<boolean>()
+export function DialogPropertyDelete({ id, children }: DialogDeletePropertyProps) {
+  const [open, setOpen] = useState<boolean>(false)
   const { toast } = useToast()
 
   const submit = async () => {
-    const { error } = await JSON.parse(await destroyProperty(id))
+    const res = await destroyProperty(id)
+    const { error } = res as any 
 
     if (error) {
       toast({
         title: 'Não foi possível excluir o imóvel!',
+        variant: 'destructive'
       })
     } else {
       toast({
         title: 'Imóvel deletado com sucesso!',
       })
+      setOpen(false)
     }
-
-    setOpen(false)
   }
 
   return (
@@ -47,8 +48,7 @@ export function DialogPropertyDelete({ id, children }: DialogCreatePropertyProps
           <DialogTitle>Confirmar exclusão do imóvel</DialogTitle>
           <DialogDescription>
             Tem certeza de que deseja excluir este imóvel? Esta ação é
-            irreversível e removerá permanentemente o imóvel do sistema. Deseja
-            continuar com a exclusão?
+            irreversível e removerá permanentemente o imóvel do sistema.
           </DialogDescription>
         </DialogHeader>
         <form action={submit}>

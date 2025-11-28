@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PropertyCategoryController;
+use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\UserController;
 use App\Models\PropertyCategory;
 use Illuminate\Http\Request;
@@ -23,6 +24,8 @@ Route::post('/property-categories', [PropertyCategoryController::class, 'store']
 Route::get('/property-categories/{id}', [PropertyCategoryController::class, 'show']);
 Route::put('/property-categories/{id}', [PropertyCategoryController::class, 'update']);
 Route::delete('/property-categories/{id}', [PropertyCategoryController::class, 'destroy']);
+
+Route::apiResource('/properties', PropertyController::class);
 
 Route::get('/', function () {
     return ['Laravel' => app()->version()];

@@ -9,16 +9,18 @@ import {
   TableRow,
 } from '@/components/dashboard/table'
 
-import { categoryType } from '@/types/category'
+// CORREÇÃO: Importando do arquivo correto
+import { propertyCategoryType } from '@/types/property-category'
 import { Button } from '@/components/button'
 import { LuInfo, LuPen, LuPlusCircle, LuTrash } from 'react-icons/lu'
 import { DialogUpdateCategory } from './dialog-update-category'
 import { DialogCategoryDelete } from './dialog-delete-category'
 import { DialogInformationCategory } from './dialog-information-category'
 import { DialogCreateCategory } from './dialog-create-category'
+import { api } from '@/services/api'
 
 export default async function ListCategory() {
-  const { response } = null // requisicao para api
+  const { response } = await api<propertyCategoryType[]>('GET', '/property-categories')
 
   if (!response) {
     return (
@@ -28,14 +30,14 @@ export default async function ListCategory() {
     )
   }
 
-  const categories: categoryType[] = response
+  const categories: propertyCategoryType[] = response
 
   return (
     <>
       <DashboardContainer className="flex h-min justify-between space-x-0 gap-y-2.5 max-sm:flex-col">
         <DialogCreateCategory>
           <Button size="sm">
-            <LuPlusCircle />
+            <LuPlusCircle className="mr-2" />
             Nova categoria
           </Button>
         </DialogCreateCategory>
@@ -49,7 +51,7 @@ export default async function ListCategory() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {categories?.map((category: categoryType) => (
+            {categories?.map((category: propertyCategoryType) => (
               <TableRow key={category.id}>
                 <TableCell>{category.name}</TableCell>
                 <TableCell className="flex justify-end gap-2">

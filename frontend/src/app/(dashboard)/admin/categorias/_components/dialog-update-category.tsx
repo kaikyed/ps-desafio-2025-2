@@ -9,11 +9,12 @@ import {
   DialogDescription,
 } from '@/components/dialog'
 import FormFieldsCategory from './form-fields-category'
-import { updateCategory } from '@/actions/category'
+import { updatePropertyCategory } from '@/actions/property-category'
 import { filterFormData } from '@/services/filter-form-data'
 import { useEffect, useState } from 'react'
 import { useToast } from '@/components/use-toast'
-import { categoryType } from '@/types/category'
+// CORREÇÃO: Importando do arquivo correto
+import { propertyCategoryType } from '@/types/property-category'
 import { ResponseErrorType, api } from '@/services/api'
 
 interface DialogUpdateCategoryProps {
@@ -25,47 +26,53 @@ export function DialogUpdateCategory({
   id,
   children,
 }: DialogUpdateCategoryProps) {
-  const [category, setCategory] = useState<categoryType | null>(null)
-  const [open, setOpen] = useState<boolean>()
+  const [category, setCategory] = useState<propertyCategoryType | null>(null)
+  const [open, setOpen] = useState<boolean>(false)
   const [error, setError] = useState<ResponseErrorType | null>(null)
   const { toast } = useToast()
 
   useEffect(() => {
-    const requestData = async () => {
-      const { response } = null // requisicao para api
+    if (open) {
+      const requestData = async () => {
+        const { response } = await api<propertyCategoryType>('GET', `/property-categories/${id}`)
 
-      if (response) {
-        setCategory(response)
-      } else {
-        setCategory(null)
-        toast({
-          title: 'Categoria  não encontrada!',
-        })
-        setOpen(false)
+        if (response) {
+          setCategory(response)
+        } else {
+          setCategory(null)
+          toast({
+            title: 'Categoria não encontrada!',
+            variant: 'destructive'
+          })
+          setOpen(false)
+        }
       }
+      requestData()
     }
 
-    requestData()
-
     return () => {
-      setCategory(null)
-      setError(null)
+      if (!open) {
+        setCategory(null)
+        setError(null)
+      }
     }
   }, [id, open, toast])
 
   const submit = async (form: FormData) => {
     const newForm = await filterFormData(form)
 
-    const { error } = await JSON.parse(await updateCategory(newForm))
+    const res = await updatePropertyCategory(newForm)
+    const { error } = res as any 
 
     if (error) {
       setError(error)
       toast({
         title: 'Não foi possível editar a categoria!',
+        variant: 'destructive'
       })
     } else {
       toast({
-        title: 'Categoria editado com sucesso!',
+        title: 'Categoria editada com sucesso!',
       })
       setOpen(false)
     }
@@ -82,9 +89,13 @@ export function DialogUpdateCategory({
             &quot;Salvar&quot; para aplicar as alterações.
           </DialogDescription>
         </DialogHeader>
-        <form action={submit}>
-          <FormFieldsCategory error={error} category={category} />
-        </form>
+        {category ? (
+            <form action={submit}>
+            <FormFieldsCategory error={error} category={category} />
+            </form>
+        ) : (
+            <div className="p-4 text-center text-sm text-muted-foreground">Carregando dados...</div>
+        )}
       </DialogContent>
     </Dialog>
   )

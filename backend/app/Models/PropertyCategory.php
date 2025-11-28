@@ -16,4 +16,11 @@ class PropertyCategory extends Model
         'name',
 
     ];
+
+
+    public function properties(){
+
+        return $this->hasMany(Property::class, 'property_category_id', 'id');
+
+    }
 }

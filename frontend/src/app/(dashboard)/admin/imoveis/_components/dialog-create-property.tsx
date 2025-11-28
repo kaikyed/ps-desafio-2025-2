@@ -20,7 +20,7 @@ interface DialogCreatePropertyProps {
 }
 
 export function DialogCreateProperty({ children }: DialogCreatePropertyProps) {
-  const [open, setOpen] = useState<boolean>()
+  const [open, setOpen] = useState<boolean>(false)
   const [error, setError] = useState<ResponseErrorType | null>(null)
   const { toast } = useToast()
 
@@ -33,12 +33,14 @@ export function DialogCreateProperty({ children }: DialogCreatePropertyProps) {
   const submit = async (form: FormData) => {
     const newForm = await filterFormData(form)
 
-    const { error } = await JSON.parse(await createProperty(newForm))
+    const res = await createProperty(newForm)
+    const { error } = res as any 
 
     if (error) {
       setError(error)
       toast({
         title: 'Não foi possível criar o imóvel!',
+        variant: 'destructive'
       })
     } else {
       toast({
@@ -51,7 +53,7 @@ export function DialogCreateProperty({ children }: DialogCreatePropertyProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-3xl"> {/* Aumentei a largura pois tem muitos campos */}
         <DialogHeader>
           <DialogTitle>Adicionar imóvel</DialogTitle>
           <DialogDescription>

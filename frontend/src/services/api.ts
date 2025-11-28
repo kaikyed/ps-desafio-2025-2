@@ -24,6 +24,7 @@ export type ResponseErrorType = {
   }
 }
 
+// A classe existe apenas internamente para o interceptor lançar o erro
 export class ResponseError extends Error implements ResponseErrorType {
   errors: {
     [key: string]: string
@@ -66,13 +67,15 @@ baseApi.interceptors.request.use(async (config) => {
 baseApi.interceptors.response.use(
   (response) => response.data,
   async ({ response }) => {
-    if (response.status === 422) {
+    if (response && response.status === 422) {
       const errors = firstItemToObject(response.data.errors)
-
       throw new ResponseError(response.data.message, errors, response.status)
     }
-
-    throw new ResponseError(response.data.message, {}, response.status)
+    
+    // Tratamento seguro caso response seja undefined ou outro erro
+    const message = response?.data?.message || 'Ocorreu um erro desconhecido.'
+    const status = response?.status || 500
+    throw new ResponseError(message, {}, status)
   },
 )
 
@@ -92,9 +95,11 @@ export async function api<T = unknown>(
     })
     return { response: response as T, error: undefined }
   } catch (e) {
+    const errorObj = e as ResponseError
+
     if (
-      (e as ResponseErrorType).status === 401 ||
-      (e as ResponseErrorType).status === 403
+      errorObj.status === 401 ||
+      errorObj.status === 403
     ) {
       if (isServerSide()) {
         redirect('/auth/sign-out')
@@ -103,6 +108,17 @@ export async function api<T = unknown>(
       }
     }
 
-    return { response: undefined, error: e as ResponseErrorType }
+    // --- CORREÇÃO CRUCIAL AQUI ---
+    // Em vez de retornar 'error: errorObj' (que é uma Classe),
+    // criamos um objeto simples (Plain Object) manualmente.
+    // Isso resolve o erro "Only plain objects can be passed..."
+    return { 
+      response: undefined, 
+      error: {
+        message: errorObj.message || 'Erro de conexão',
+        status: errorObj.status || 500,
+        errors: errorObj.errors || {}
+      } 
+    }
   }
 }

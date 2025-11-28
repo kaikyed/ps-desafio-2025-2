@@ -1,6 +1,6 @@
 'use client'
 
-import { destroyCategory } from '@/actions/category'
+import { destroyPropertyCategory } from '@/actions/property-category' // Nome corrigido
 import { Button } from '@/components/button'
 import {
   Dialog,
@@ -14,7 +14,7 @@ import {
 import { useToast } from '@/components/use-toast'
 import { useState } from 'react'
 
-interface DialogCreateCategoryProps {
+interface DialogDeleteCategoryProps {
   id: string
   children: React.ReactNode
 }
@@ -22,24 +22,26 @@ interface DialogCreateCategoryProps {
 export function DialogCategoryDelete({
   id,
   children,
-}: DialogCreateCategoryProps) {
-  const [open, setOpen] = useState<boolean>()
+}: DialogDeleteCategoryProps) {
+  const [open, setOpen] = useState<boolean>(false)
   const { toast } = useToast()
 
   const submit = async () => {
-    const { error } = await JSON.parse(await destroyCategory(id))
+    // Ajuste conforme o retorno da sua Server Action
+    const res = await destroyPropertyCategory(id)
+    const { error } = res as any 
 
     if (error) {
       toast({
         title: 'Não foi possível excluir a categoria!',
+        variant: 'destructive'
       })
     } else {
       toast({
         title: 'Categoria deletada com sucesso!',
       })
+      setOpen(false)
     }
-
-    setOpen(false)
   }
 
   return (
@@ -51,7 +53,6 @@ export function DialogCategoryDelete({
           <DialogDescription>
             Tem certeza de que deseja excluir esta categoria? Esta ação é
             irreversível e removerá permanentemente a categoria do sistema.
-            Deseja continuar com a exclusão?
           </DialogDescription>
         </DialogHeader>
         <form action={submit}>

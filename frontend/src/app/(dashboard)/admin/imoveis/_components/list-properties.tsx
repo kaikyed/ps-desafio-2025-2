@@ -10,7 +10,7 @@ import {
   TableRow,
 } from '@/components/dashboard/table'
 import { api } from '@/services/api'
-import { propertyType } from '@/types/property'
+import { PropertyType } from '@/types/property'
 import { Button } from '@/components/button'
 import { LuInfo, LuPen, LuPlusCircle, LuTrash } from 'react-icons/lu'
 import { DialogUpdateProperty } from './dialog-update-property'
@@ -19,7 +19,7 @@ import { DialogInformationProperty } from './dialog-information-property'
 import { DialogCreateProperty } from './dialog-create-property'
 
 export default async function ListProperties() {
-  const { response } = null // requisicao para api
+  const { response } = await api<PropertyType[]>('GET', '/properties')
 
   if (!response) {
     return (
@@ -29,14 +29,17 @@ export default async function ListProperties() {
     )
   }
 
-  const properties: propertyType[] = response
+  // --- AQUI ESTÁ A CORREÇÃO ---
+  // Higieniza os dados para garantir que são apenas objetos simples (Plain Objects)
+  // Isso remove classes e transforma datas em string, resolvendo o erro do Next.js.
+  const properties: PropertyType[] = JSON.parse(JSON.stringify(response))
 
   return (
     <>
       <DashboardContainer className="flex h-min justify-between space-x-0 gap-y-2.5 max-sm:flex-col">
         <DialogCreateProperty>
           <Button size="sm">
-            <LuPlusCircle />
+            <LuPlusCircle className="mr-2" />
             Novo imóvel
           </Button>
         </DialogCreateProperty>
@@ -46,23 +49,25 @@ export default async function ListProperties() {
           <TableHeader>
             <TableRow>
               <TableHead>Imagem</TableHead>
-              <TableHead>Titulo</TableHead>
+              <TableHead>Nome</TableHead>
+              <TableHead>Preço</TableHead>
               <TableHead>Categoria</TableHead>
-              <TableHead>Quantidade</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {properties?.map((property: propertyType) => (
+            {properties?.map((property: PropertyType) => (
               <TableRow key={property.id}>
                 <TableCell>
                   <TabbleCellImage src={property.image} />
                 </TableCell>
                 
-                <TableCell>{property.title}</TableCell>
-                <TableCell>{property.amount}</TableCell>
-                <TableCell>{property.category.name}</TableCell>
-                {/* demais propriedades de propertyType */}
+                <TableCell>{property.name}</TableCell>
+                <TableCell>
+                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(property.price)}
+                </TableCell>
+                {/* Garante que property_category existe antes de acessar o name */}
+                <TableCell>{property.property_category?.name}</TableCell>
                 
                 <TableCell className="flex justify-end gap-2">
                   <DialogInformationProperty id={property.id}>

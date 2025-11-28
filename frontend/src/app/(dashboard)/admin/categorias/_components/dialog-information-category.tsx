@@ -9,8 +9,8 @@ import {
   DialogDescription,
 } from '@/components/dialog'
 import FormFieldsCategory from './form-fields-category'
-import { categoryType } from '@/types/category'
-import SkeletonFormFieldsCategory from './skeleton-category'
+// CORREÇÃO: Importando do arquivo correto
+import { propertyCategoryType } from '@/types/property-category'
 import { api } from '@/services/api'
 import { useEffect, useState } from 'react'
 import { useToast } from '@/components/use-toast'
@@ -18,34 +18,35 @@ import { useToast } from '@/components/use-toast'
 interface DialogInformationCategoryProps {
   id: string
   children: React.ReactNode
-  isInformation?: boolean
 }
 
 export function DialogInformationCategory({
   id,
   children,
 }: DialogInformationCategoryProps) {
-  const [category, setCategory] = useState<categoryType | null>(null)
-  const [open, setOpen] = useState<boolean>()
+  const [category, setCategory] = useState<propertyCategoryType | null>(null)
+  const [open, setOpen] = useState<boolean>(false)
   const { toast } = useToast()
 
   useEffect(() => {
-    const requestData = async () => {
-      const { response } = null // requisicao para api
+    if (open) {
+        const requestData = async () => {
+        const { response } = await api<propertyCategoryType>('GET', `/property-categories/${id}`)
 
-      if (response) {
-        setCategory(response)
-      } else {
-        setCategory(null)
-        toast({
-          title: 'Categoria não encontrada!',
-        })
-        setOpen(false)
-      }
+        if (response) {
+            setCategory(response)
+        } else {
+            setCategory(null)
+            toast({
+            title: 'Categoria não encontrada!',
+            variant: 'destructive'
+            })
+            setOpen(false)
+        }
+        }
+        requestData()
     }
-
-    requestData()
-
+    
     return () => setCategory(null)
   }, [id, open, toast])
 
@@ -62,7 +63,7 @@ export function DialogInformationCategory({
         {category ? (
           <FormFieldsCategory category={category} readOnly />
         ) : (
-          <SkeletonFormFieldsCategory readOnly />
+          <div className="p-4 text-center text-sm text-muted-foreground">Carregando informações...</div>
         )}
       </DialogContent>
     </Dialog>

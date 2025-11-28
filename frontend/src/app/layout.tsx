@@ -8,8 +8,8 @@ import { Toaster } from '@/components/toaster'
 const arimo = Arimo({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Adapti Project Template',
-  description: 'Created by Adapti 2024',
+  title: 'Dream House',
+  description: 'Created by Kaiky 2025',
 }
 
 export default async function RootLayout({
