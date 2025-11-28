@@ -10,8 +10,11 @@ const arimo = Arimo({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'Dream House',
   description: 'Created by Kaiky 2025',
-  
-  icons: {icon: '/favicon.ico' },
+
+
+  icons: {
+    icon: '/favicon.ico',
+  },
 
 }
 
